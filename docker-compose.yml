@@ -10,7 +10,7 @@ services:
       - DEBUG=${DEBUG:-false}
       - DEMO_MODE=${DEMO_MODE:-false}
     volumes:
-      - ops_env:/opt/ops_env:ro
+      - ops_env:/opt/ops_env
       - ops_assets:/var/lib/openpagingserver/assets
 
   db-init:
