@@ -23,11 +23,11 @@ WORKDIR /opt/OpenPagingServer
 
 RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
     pip install --no-cache-dir pymysql flask python-dotenv requests cryptography waitress && \
-    pip install --no-cache-dir mysql-connector-python
+    pip install --no-cache-dir mysql-connector-python requests Pillow
 
 RUN mkdir -p /var/lib/openpagingserver/endpointmodules && \
     for module in cisco polycom yealink discord-webhook; do \
-        curl -fsSL "https://github.com/OpenPagingServer/endpoint-module-${module}/releases/latest/download/${module}.opsepm" \
+        curl -fsSL "https://install.openpagingserver.org/modules/${module}.opsepm" \
             -o "/var/lib/openpagingserver/endpointmodules/${module}.opsepm" || true; \
     done
 
