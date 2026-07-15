@@ -32,7 +32,17 @@ def _parse_env_file(path):
 
 
 def _existing_db_creds():
-    """Return (host, port, user, password, db_name) from the volume .env, or None."""
+    """Return (host, port, user, password, db_name) from env vars or volume .env, or None."""
+    # Check environment variables first (passed from host .env via docker-compose)
+    env_user = os.environ.get("APP_DB_USER", "").strip()
+    env_pass = os.environ.get("APP_DB_PASS", "").strip()
+    env_name = os.environ.get("APP_DB_NAME", "").strip()
+    if env_user and env_pass and env_name:
+        host = os.environ.get("APP_DB_HOST", "127.0.0.1").strip()
+        port = int(os.environ.get("APP_DB_PORT", "3306"))
+        return host, port, env_user, env_pass, env_name
+
+    # Fall back to volume .env file
     env = _parse_env_file(ENV_FILE)
     user = env.get("DB_USER", "").strip()
     password = env.get("DB_PASS", "").strip()

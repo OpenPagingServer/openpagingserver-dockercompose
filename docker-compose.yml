@@ -9,6 +9,10 @@ services:
       - API_REVERSE_PROXY_ALLOWED=${API_REVERSE_PROXY_ALLOWED:-}
       - DEBUG=${DEBUG:-false}
       - DEMO_MODE=${DEMO_MODE:-false}
+      - APP_DB_HOST=${DB_HOST:-127.0.0.1}
+      - APP_DB_USER=${DB_USER:-}
+      - APP_DB_PASS=${DB_PASS:-}
+      - APP_DB_NAME=${DB_NAME:-}
     volumes:
       - ops_env:/opt/ops_env
       - ops_assets:/var/lib/openpagingserver/assets
@@ -18,8 +22,11 @@ services:
     profiles: ["init"]
     environment:
       - OPS_DOCKER_MODE=1
-      - APP_DB_HOST=127.0.0.1
+      - APP_DB_HOST=${DB_HOST:-127.0.0.1}
       - APP_DB_PORT=3306
+      - APP_DB_USER=${DB_USER:-}
+      - APP_DB_PASS=${DB_PASS:-}
+      - APP_DB_NAME=${DB_NAME:-}
     network_mode: host
     volumes:
       - ops_env:/opt/ops_env

@@ -20,6 +20,9 @@ services:
     environment:
       - APP_DB_HOST=db
       - APP_DB_PORT=3306
+      - APP_DB_USER=${DB_USER:-}
+      - APP_DB_PASS=${DB_PASS:-}
+      - APP_DB_NAME=${DB_NAME:-}
     depends_on:
       db:
         condition: service_healthy
