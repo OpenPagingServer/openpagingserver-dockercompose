@@ -26,10 +26,31 @@ RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
     pip install --no-cache-dir mysql-connector-python requests Pillow
 
 RUN mkdir -p /var/lib/openpagingserver/endpointmodules && \
-    for module in cisco polycom yealink discord-webhook; do \
-        curl -fsSL "https://install.openpagingserver.org/modules/${module}.opsepm" \
-            -o "/var/lib/openpagingserver/endpointmodules/${module}.opsepm" || true; \
-    done
+    download_opsepm() { \
+        repo="$1"; \
+        tag=$(curl -fsSL -H "Accept: application/vnd.github+json" -H "User-Agent: OpenPagingServer-docker" \
+            "https://api.github.com/repos/OpenPagingServer/${repo}/tags" \
+            | python3 -c "import json,sys; d=json.loads(sys.stdin.read()); print(d[0]['name'] if d else '')" 2>/dev/null); \
+        [ -z "$tag" ] && echo "No tags for $repo" && return 0; \
+        asset_info=$(curl -fsSL -H "Accept: application/vnd.github+json" -H "User-Agent: OpenPagingServer-docker" \
+            "https://api.github.com/repos/OpenPagingServer/${repo}/releases/tags/${tag}" \
+            | python3 -c "
+import json,sys
+data=json.loads(sys.stdin.read())
+for a in data.get('assets',[]):
+    if a['name'].lower().endswith('.opsepm'):
+        print(a['name']); print(a['browser_download_url']); break
+" 2>/dev/null); \
+        [ -z "$asset_info" ] && echo "No .opsepm asset for $repo tag $tag" && return 0; \
+        asset_name=$(echo "$asset_info" | sed -n '1p'); \
+        asset_url=$(echo "$asset_info" | sed -n '2p'); \
+        echo "Downloading $asset_name"; \
+        curl -fL "$asset_url" -o "/var/lib/openpagingserver/endpointmodules/$asset_name" || true; \
+    }; \
+    download_opsepm cisco; \
+    download_opsepm polycom; \
+    download_opsepm yealink; \
+    download_opsepm discordwebhook
 
 RUN mkdir -p /var/lib/openpagingserver/assets
 
